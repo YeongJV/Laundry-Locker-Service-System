@@ -1,5 +1,8 @@
 package model;
 
-public enum UserRole {
-	ADMIN, CUSTOMER
+public final class UserRole {
+    public static final String ADMIN    = "ADMIN";
+    public static final String CUSTOMER = "CUSTOMER";
+
+    private UserRole() {}
 }
