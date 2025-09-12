@@ -16,8 +16,8 @@ public class LockerApp {
     private final DataStore db = new DataStore("data");
     private final AdminGate adminGate = new AdminGate("admin123"); // change if needed
     private final Map<String, Double> serviceFees = Map.of(
-            ServiceType.WASH_AND_FOLD.name(), 10.0,
-            ServiceType.DRY_CLEANING.name(), 18.0
+            ServiceType.WASH_AND_FOLD, 10.0,
+            ServiceType.DRY_CLEANING, 18.0
     );
     private static final double LOCKER_FEE_PER_HOUR = 2.0; // RM 2 per started hour
 
@@ -25,17 +25,21 @@ public class LockerApp {
         splash();
         try {
             db.loadAll();
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             System.out.println("First run: storage will be created. (" + e.getMessage() + ")");
         }
         home();
-        try { db.saveAll(); } catch (IOException ignored) {}
+        try { 
+        	db.saveAll(); 
+        } 
+        catch (IOException ignored) {}
         System.out.println("Goodbye!");
     }
 
     private void splash() {
-        System.out.println("\n=== Laundry Locker Service System ===");
-        System.out.println("Reserve locker space for drop-off & pick-up (console demo)");
+        System.out.println("\n===== Laundry Locker Service System =====");
+        System.out.println("Reserve locker space for drop-off & pick-up");
     }
 
     private void home() {
@@ -57,12 +61,10 @@ public class LockerApp {
     //Customer menu
     private void customerMenu() {
         while (true) {
-            System.out.println("""
-                \n-- Customer Menu --
-                1) New Reservation (auto-assign locker + code)
-                2) Drop-Off (unlock with code)
-                3) Pay & Pick-Up (compute fee + unlock + reset)
-                4) Back""");
+            System.out.println("\n-- Customer Menu --");
+            System.out.println("1) Drop-Off");
+            System.out.println("2) Pay & Pick-Up");
+            System.out.println("3) Back");    
             String c = ask("Choose: ");
             switch (c) {
                 case "1" -> createReservation();
@@ -75,17 +77,19 @@ public class LockerApp {
     }
     
     private void createReservation() {
-        System.out.println("\n-- New Reservation --");
-        String phone = ask("Phone number: ");
-        if (!phone.matches("\\d{8,15}")) {
-            System.out.println("Invalid phone (use digits, 8-15).");
-            return;
-        }
+        System.out.println("\n-- Drop Off --");
+        String phone;
+        do {
+        	phone = ask("Phone number: ");
+        	if (!phone.matches("\\d{8,15}")) {
+        		System.out.println("Invalid phone number (Enter 8-15 digits, e.g. 012345678)\n");
+        	}
+        }while(!phone.matches("\\d{8,15}"));
 
         // show services
-        ServiceType service = chooseServiceType();
+        String service = chooseServiceType();
         if (service == null) return;
-        double serviceFee = serviceFees.get(service.name());
+        double serviceFee = serviceFees.get(service);
 
         // find free locker
         Optional<Locker> free = db.findFirstAvailableLocker();
@@ -94,6 +98,7 @@ public class LockerApp {
             return;
         }
         Locker locker = free.get();
+        
         // allocate and mark unavailable
         String code = CodeGenerator.unique6Digits(db.getActiveCodes());
         String resId = CodeGenerator.reservationId();
@@ -101,19 +106,21 @@ public class LockerApp {
         locker.setAvailable(false);
         db.saveReservationAndLocker(r, locker);
 
-        System.out.printf("Reservation created. Locker: %s | Code: %s\n", locker.getId(), code);
-        System.out.printf("(Simulated) Code sent to phone %s\n", phone);
+        System.out.printf("Drop Off successful. Locker ID: %s | Code: %s\n", locker.getId(), code);
+        System.out.printf("Locker ID and code sent to phone %s\n via WhatsApp", phone);
     }
 
-    private ServiceType chooseServiceType() {
+    private String chooseServiceType() {
         System.out.println("Service Types:");
-        System.out.println("1) Wash & Fold (RM " + serviceFees.get(ServiceType.WASH_AND_FOLD.name()) + ")");
-        System.out.println("2) Dry Cleaning (RM " + serviceFees.get(ServiceType.DRY_CLEANING.name()) + ")");
+        System.out.println("1) Wash & Fold (RM " + serviceFees.get(ServiceType.WASH_AND_FOLD) + ")");
+        System.out.println("2) Dry Cleaning (RM " + serviceFees.get(ServiceType.DRY_CLEANING) + ")");
         String s = ask("Choose: ");
         return switch (s) {
             case "1" -> ServiceType.WASH_AND_FOLD;
             case "2" -> ServiceType.DRY_CLEANING;
-            default -> { System.out.println("Cancelled."); yield null; }
+            default -> { System.out.println("Cancelled."); 
+            yield null; 
+            }
         };
     }
 
@@ -122,7 +129,10 @@ public class LockerApp {
         String lockerId = ask("Locker ID (e.g., L001): ").toUpperCase();
         String code = ask("6-digit code: ");
         Optional<Reservation> or = db.findActiveByLockerAndCode(lockerId, code);
-        if (or.isEmpty()) { System.out.println("Invalid locker/code or not reserved."); return; }
+        if (or.isEmpty()) { 
+        	System.out.println("Invalid locker/code or not reserved."); 
+        	return; 
+        }
 
         Reservation r = or.get();
         if (r.getDropoffAt() != null) {
@@ -131,7 +141,7 @@ public class LockerApp {
         }
         r.setDropoffAt(LocalDateTime.now());
         db.upsertReservation(r);
-        System.out.println(">> Locker unlocked for drop-off (simulated). Drop-off time recorded.");
+        System.out.println(">> Locker unlocked for drop-off. Drop-off time recorded.");
     }
 
     private void payAndPickup() {
@@ -171,7 +181,7 @@ public class LockerApp {
         Optional<Locker> ol = db.findLocker(lockerId);
         if (ol.isEmpty()) { System.out.println("Locker not found!"); return; }
         Locker locker = ol.get();
-        System.out.println(">> Locker unlocked (simulated). Please collect your bag.");
+        System.out.println(">> Locker unlocked. Please collect your bag.");
         locker.setAvailable(true);
 
         db.completeReservation(r, locker);
