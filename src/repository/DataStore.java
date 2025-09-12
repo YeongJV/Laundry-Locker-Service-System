@@ -72,12 +72,12 @@ public class DataStore {
             String[] a = line.split(",", -1);
             // id, phone, lockerId, code, serviceType, serviceFee, createdAt, dropoffAt, pickupAt, paymentStatus, amount
             Reservation r = Reservation.newPending(
-                    a[0], a[1], a[2], a[3], ServiceType.valueOf(a[4]), Double.parseDouble(a[5])
+                    a[0], a[1], a[2], a[3], a[4], Double.parseDouble(a[5])
             );
             if (!a[6].isBlank()) r = setCreatedAt(r, LocalDateTime.parse(a[6]));
             if (!a[7].isBlank()) r.setDropoffAt(LocalDateTime.parse(a[7]));
             if (!a[8].isBlank()) r.setPickupAt(LocalDateTime.parse(a[8]));
-            r.setPaymentStatus(PaymentStatus.valueOf(a[9]));
+            r.setPaymentStatus(a[9].isBlank()? PaymentStatus.UNPAID : a[9]);
             r.setAmount(Double.parseDouble(a[10]));
             reservations.put(r.getId(), r);
         }
@@ -96,8 +96,8 @@ public class DataStore {
                 String drop = r.getDropoffAt() == null ? "" : r.getDropoffAt().toString();
                 String pick = r.getPickupAt() == null ? "" : r.getPickupAt().toString();
                 bw.write(String.join(",",
-                        r.getId(), r.getPhone(), r.getLockerId(), r.getCode(), r.getServiceType().name(),
-                        String.valueOf(r.getServiceFee()), created, drop, pick, r.getPaymentStatus().name(),
+                        r.getId(), r.getPhone(), r.getLockerId(), r.getCode(), r.getServiceType(),
+                        String.valueOf(r.getServiceFee()), created, drop, pick, r.getPaymentStatus(),
                         String.format("%.2f", r.getAmount())));
                 bw.newLine();
             }
