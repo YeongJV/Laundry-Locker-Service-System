@@ -62,22 +62,23 @@ public class LockerApp {
     private void customerMenu() {
         while (true) {
             System.out.println("\n-- Customer Menu --");
-            System.out.println("1) Drop-Off");
-            System.out.println("2) Pay & Pick-Up");
-            System.out.println("3) Back");    
+            System.out.println("1) Reserve Lockers");
+            System.out.println("2) Drop-Off");
+            System.out.println("3) Pay & Pick-Up");
+            System.out.println("4) Home");
             String c = ask("Choose: ");
             switch (c) {
                 case "1" -> createReservation();
                 case "2" -> dropOff();
                 case "3" -> payAndPickup();
-                case "4" -> { return; }
+                case "4" -> home();
                 default -> System.out.println("Invalid.");
             }
         }
     }
     
     private void createReservation() {
-        System.out.println("\n-- Drop Off --");
+        System.out.println("\n-- Reservation --");
         String phone;
         do {
         	phone = ask("Phone number: ");
@@ -107,8 +108,9 @@ public class LockerApp {
         db.saveReservationAndLocker(r, locker);
 
         System.out.println();
-        System.out.printf("Drop Off successful. Locker ID: %s | Code: %s\n", locker.getId(), code);
+        System.out.printf("Reservation successful. Locker ID: %s | Code: %s\n", locker.getId(), code);
         System.out.printf("Locker ID and code sent to phone %s\n via WhatsApp", phone);
+        System.out.println("");
     }
 
     private String chooseServiceType() {
