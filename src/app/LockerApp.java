@@ -106,6 +106,7 @@ public class LockerApp {
         locker.setAvailable(false);
         db.saveReservationAndLocker(r, locker);
 
+        System.out.println();
         System.out.printf("Drop Off successful. Locker ID: %s | Code: %s\n", locker.getId(), code);
         System.out.printf("Locker ID and code sent to phone %s\n via WhatsApp", phone);
     }
