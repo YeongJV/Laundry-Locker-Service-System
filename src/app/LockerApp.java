@@ -88,7 +88,7 @@ public class LockerApp {
                 return; // exit the method
             }
             if (!phone.matches("\\d{8,11}")) {
-                System.out.println("\nInvalid phone number (Enter 8-11 digits, e.g., 012345678)\n");
+                System.out.println("\nInvalid phone number (Enter 8-11 digits, e.g., 012345678) \nPlease try again!\n");
             }
         } while (!phone.matches("\\d{8,11}"));
 
@@ -300,6 +300,7 @@ public class LockerApp {
     	return sc.nextLine().trim(); 
     }
 }
+
 
 
 
