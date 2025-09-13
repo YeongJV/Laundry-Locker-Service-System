@@ -138,10 +138,10 @@ public class LockerApp {
     	
     	Reservation r = null;
     	Optional<Reservation> or;
-    	String lockerID = null;
+
     	
     	do {
-    	    String lockerId = ask("\nLocker ID (e.g., L001, 0 to cancel): ").toUpperCase();
+    	    String lockerId = ask("\nLocker ID (e.g., L001, 0 to cancel): ").toUpperCase().trim();
     	    if (lockerId.equals("0")) {
     	        System.out.println("Action cancelled.");
     	        return; // exit the method
@@ -188,7 +188,7 @@ public class LockerApp {
         r.setPaymentStatus(PaymentStatus.PAID);
 
 		// Unlock and reset locker
-        Optional<Locker> ol = db.findLocker(lockerID);
+        Optional<Locker> ol = db.findLocker(r.getLockerId());
         if (ol.isEmpty()) { System.out.println("Locker not found!"); return; }
         Locker locker = ol.get();
         System.out.println("\nLocker unlocked! Please collect your bag.");
@@ -226,15 +226,18 @@ public class LockerApp {
     }
 
     private void adminUnlock() {
-        String id = ask("Locker ID (e.g., L001): ").toUpperCase();
+        System.out.println("");
+        String id = ask("Locker ID (e.g., L001, 0 to cancel): ").toUpperCase();
+        if (id.equals("0")) {System.out.println("Action cancelled."); return;}
         Optional<Locker> ol = db.findLocker(id);
         if (ol.isEmpty()) { System.out.println("Locker not found."); return; }
-        // Admin unlock does NOT reset to available (SRS)
         System.out.println("Locker " + id + " unlocked!");
     }
 
     private void adminViewLockerDetails() {
-        String id = ask("Locker ID (e.g., L001): ").toUpperCase();
+        System.out.println("");
+        String id = ask("Locker ID (e.g., L001, 0 to cancel): ").toUpperCase();
+        if (id.equals("0")) {System.out.println("Action cancelled."); return;}
         Optional<Locker> ol = db.findLocker(id);
         if (ol.isEmpty()) { System.out.println("Locker not found."); return; }
 
@@ -259,6 +262,9 @@ public class LockerApp {
     }
 
     private void listReservations() {
+        String confirm = ask("\nList all reservations? (y/n): ");
+        if (confirm.equalsIgnoreCase("n")) {System.out.println("Action cancelled."); return;}
+        
     	System.out.println("\n----- Reservations -----");
         db.getReservations().stream()
                 .sorted(Comparator.comparing(Reservation::getCreatedAt).reversed())
