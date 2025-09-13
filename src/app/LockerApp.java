@@ -84,11 +84,11 @@ public class LockerApp {
         do {
         	phone = ask("Phone number (0 to cancel): ");
             if (phone.equals("0")) {
-                System.out.println("Action cancelled.");
+                System.out.println("\nAction cancelled.");
                 return; // exit the method
             }
             if (!phone.matches("\\d{8,15}")) {
-                System.out.println("Invalid phone number (Enter 8-15 digits, e.g., 012345678)\n");
+                System.out.println("\nInvalid phone number (Enter 8-15 digits, e.g., 012345678)\n");
             }
         } while (!phone.matches("\\d{8,15}"));
 
@@ -130,7 +130,7 @@ public class LockerApp {
             switch (s) {
             case "1" : { return ServiceType.WASH_AND_FOLD; }
             case "2" : { return ServiceType.DRY_CLEANING; }
-            case "0" : { System.out.println("Action cancelled."); return null; }
+            case "0" : { System.out.println("\nAction cancelled."); return null; }
             default : System.out.println("\nInvalid choice. Please try again!");
             }
         }
@@ -144,20 +144,20 @@ public class LockerApp {
     		System.out.println("\n----- Pay & Pick-Up -----");
     	    String lockerId = ask("\nLocker ID (e.g., L001, 0 to cancel): ").toUpperCase().trim();
     	    if (lockerId.equals("0")) {
-    	        System.out.println("Action cancelled.");
+    	        System.out.println("\nAction cancelled.");
     	        return; // exit the method
     	    }
 
     	    String code = ask("6-digit code (0 to cancel): ");
     	    if (code.equals("0")) {
-    	        System.out.println("Action cancelled.");
+    	        System.out.println("\nAction cancelled.");
     	        return; // exit the method
     	    }
 
     	    or = db.findActiveByLockerAndCode(lockerId, code);
 
     	    if (or.isEmpty()) {
-    	        System.out.println("Invalid locker/code or not reserved. Please try again.");
+    	        System.out.println("\nInvalid locker/code or not reserved. Please try again.");
     	    }
     	} while (or.isEmpty());
 
@@ -207,7 +207,7 @@ public class LockerApp {
         System.out.println("\n----- Admin Login -----");
         String pass = ask("Admin password: ");
         if (!adminGate.allow(pass)) {
-        	System.out.println("Access denied."); 
+        	System.out.println("\nAccess denied!"); 
         	return;
         }
         adminMenu();
@@ -235,7 +235,7 @@ public class LockerApp {
     private void adminUnlock() {
         String id = ask("\nLocker ID (e.g., L001, 0 to cancel): ").toUpperCase();
         if (id.equals("0")) {
-        	System.out.println("Action cancelled."); 
+        	System.out.println("\nAction cancelled."); 
         	return;
         }
         Optional<Locker> ol = db.findLocker(id);
@@ -250,7 +250,7 @@ public class LockerApp {
     private void adminViewLockerDetails() {
         String id = ask("\nLocker ID (e.g., L001, 0 to cancel): ").toUpperCase();
         if (id.equals("0")) {
-        	System.out.println("Action cancelled."); 
+        	System.out.println("\nAction cancelled."); 
         	return;
         }
         Optional<Locker> ol = db.findLocker(id);
@@ -274,7 +274,7 @@ public class LockerApp {
             System.out.printf("Payment: %s | Amount: RM %.2f%n", r.getPaymentStatus(), r.getAmount());
         } 
         else {
-            System.out.println("No history for this locker yet.");
+            System.out.println("\nNo history for this locker yet.");
         }
         System.out.printf("Total Revenue (all lockers): RM %.2f%n", db.totalRevenue());
     }
@@ -282,7 +282,7 @@ public class LockerApp {
     private void listReservations() {
     	String confirm = ask("\nList all reservations? (y/n): ");
         if (confirm.equalsIgnoreCase("n")) {
-        	System.out.println("Action cancelled."); 
+        	System.out.println("\nAction cancelled."); 
         	return;
         }
         
@@ -300,4 +300,5 @@ public class LockerApp {
     	return sc.nextLine().trim(); 
     }
 }
+
 
