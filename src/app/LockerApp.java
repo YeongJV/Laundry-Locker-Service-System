@@ -109,6 +109,7 @@ public class LockerApp {
         String code = CodeGenerator.unique6Digits(db.getActiveCodes());
         String resId = CodeGenerator.reservationId();
         Reservation r = Reservation.newPending(resId, phone, locker.getId(), code, service, serviceFee);
+        r.setAmount(serviceFee);
         locker.setAvailable(false);
         db.saveReservationAndLocker(r, locker);
 
