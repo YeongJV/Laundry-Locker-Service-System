@@ -82,6 +82,7 @@ public class LockerApp {
     	System.out.println("\n----- Drop Off -----");
         String phone;
         do {
+			System.out.println("\n----- Pay & Pick-Up -----");
             phone = ask("Phone number (0 to cancel): ");
             if (phone.equals("0")) {
                 System.out.println("Action cancelled.");
@@ -272,4 +273,5 @@ public class LockerApp {
     	return sc.nextLine().trim(); 
     }
 }
+
 
