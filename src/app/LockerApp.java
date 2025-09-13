@@ -51,12 +51,12 @@ public class LockerApp {
             String c = ask("Choose: ");
             switch (c) {
             case "1" : customerMenu(); break;
-        	case "2" : adminLogin(); break;
-        	case "3" : 
-                	System.out.println("\nLogging out...");
-                	System.out.println("Thank you for using the Laundry Locker System!");
-                	return;
-        	default : System.out.println("Invalid choice.");
+            case "2" : adminLogin(); break;
+            case "3" : 
+                    System.out.println("\nLogging out...");
+                    System.out.println("Thank you for using the Laundry Locker System!");
+                    return;
+            default : System.out.println("\nInvalid choice. Please try again!");
             }
         }
     }
@@ -64,7 +64,7 @@ public class LockerApp {
     //Customer menu
     private void customerMenu() {
         while (true) {
-        	 System.out.println("\n----- Customer Menu -----");
+            System.out.println("\n----- Customer Menu -----");
             System.out.println("1) Drop-Off");
             System.out.println("2) Pay & Pick-Up");
             System.out.println("3) Back");    
@@ -73,16 +73,16 @@ public class LockerApp {
             case "1" : dropOff(); break;
             case "2" : payAndPickup(); break;
             case "3" : return;
-            default : System.out.println("Invalid choice.");
+            default : System.out.println("\nInvalid choice. Please try again!");
             }
         }
     }
     
     private void dropOff() {
-    	System.out.println("\n----- Drop Off -----");
+        System.out.println("\n----- Drop Off -----");
         String phone;
         do {
-            phone = ask("Phone number (0 to cancel): ");
+        	phone = ask("Phone number (0 to cancel): ");
             if (phone.equals("0")) {
                 System.out.println("Action cancelled.");
                 return; // exit the method
@@ -100,7 +100,7 @@ public class LockerApp {
         // find free locker
         Optional<Locker> free = db.findFirstAvailableLocker();
         if (free.isEmpty()) {
-            System.out.println("No lockers available now.");
+            System.out.println("\nNo lockers available now.");
             return;
         }
         Locker locker = free.get();
@@ -128,22 +128,21 @@ public class LockerApp {
             System.out.println("0) Cancel");
             String s = ask("Choose: ");
             switch (s) {
-                case "1" -> { return ServiceType.WASH_AND_FOLD; }
-                case "2" -> { return ServiceType.DRY_CLEANING; }
-                case "0" -> { System.out.println("Action cancelled."); return null; }
-                default -> System.out.println("Invalid choice. Try again.");
+            case "1" : { return ServiceType.WASH_AND_FOLD; }
+            case "2" : { return ServiceType.DRY_CLEANING; }
+            case "0" : { System.out.println("Action cancelled."); return null; }
+            default : System.out.println("Invalid choice. Please try again!");
             }
         }
     }
 
     private void payAndPickup() {
-    	
     	Reservation r = null;
     	Optional<Reservation> or;
     	
     	do {
     		System.out.println("\n----- Pay & Pick-Up -----");
-    		String lockerId = ask("Locker ID (e.g., L001, 0 to cancel): ").toUpperCase().trim();
+    	    String lockerId = ask("\nLocker ID (e.g., L001, 0 to cancel): ").toUpperCase().trim();
     	    if (lockerId.equals("0")) {
     	        System.out.println("Action cancelled.");
     	        return; // exit the method
@@ -165,7 +164,7 @@ public class LockerApp {
     	r = or.get();
 
         if (r.getDropoffAt() == null) {
-            System.out.println("No drop-off recorded yet. Please drop-off first.");
+            System.out.println("\nNo drop-off recorded yet. Please drop-off first.");
             return;
         }
 
@@ -184,15 +183,15 @@ public class LockerApp {
         	return;
         }
         
-       // Simulated payment
+        // Simulated payment
         r.setPickupAt(pickupTime);
         r.setAmount(total);
         r.setPaymentStatus(PaymentStatus.PAID);
 
-		// Unlock and reset locker
+        // Unlock and reset locker
         Optional<Locker> ol = db.findLocker(r.getLockerId());
         if (ol.isEmpty()) { 
-        	System.out.println("Locker not found!"); 
+        	System.out.println("\nLocker not found!"); 
         	return; 
         }
         Locker locker = ol.get();
@@ -205,59 +204,58 @@ public class LockerApp {
     
     //Admin menu
     private void adminLogin() {
-    	System.out.println("\n----- Admin Login -----");
+        System.out.println("\n----- Admin Login -----");
         String pass = ask("Admin password: ");
-        if (!adminGate.allow(pass)) { System.out.println("Access denied."); return; }
+        if (!adminGate.allow(pass)) {
+        	System.out.println("Access denied."); 
+        	return;
+        }
         adminMenu();
     }
 
     private void adminMenu() {
         while (true) {
-        	System.out.println("\n----- Admin Menu -----");
-            System.out.println("1) Unlock a Locker");    
+            System.out.println("\n----- Admin Menu -----");
+            System.out.println("1) Unlock a Locker");
             System.out.println("2) View Locker Details");
             System.out.println("3) List Reservations");
             System.out.println("4) Back");
-            
+           
             String c = ask("Choose: ");
             switch (c) {
             case "1" : adminUnlock(); break;
             case "2" : adminViewLockerDetails(); break;
             case "3" : listReservations(); break;
             case "4" : return;
-            default : System.out.println("Invalid.");
+            default : System.out.println("\nInvalid input. Please try again!");
             }
         }
     }
 
     private void adminUnlock() {
-        String id = ask("Locker ID (e.g., L001, 0 to cancel): ").toUpperCase();
-        
+        String id = ask("\nLocker ID (e.g., L001, 0 to cancel): ").toUpperCase();
         if (id.equals("0")) {
-            System.out.println("Action cancelled.");
-            return;
+        	System.out.println("Action cancelled."); 
+        	return;
         }
-        
         Optional<Locker> ol = db.findLocker(id);
         if (ol.isEmpty()) { 
-        	System.out.println("Locker not found."); 
+        	System.out.println("\nLocker not found."); 
         	return; 
         }
-        // Admin unlock does NOT reset to available (SRS)
-        System.out.println("Locker " + id + " unlocked!");
+        
+        System.out.println("\nLocker " + id + " unlocked!");
     }
 
     private void adminViewLockerDetails() {
-        String id = ask("Locker ID (e.g., L001, 0 to cancel): ").toUpperCase();
-        
+        String id = ask("\nLocker ID (e.g., L001, 0 to cancel): ").toUpperCase();
         if (id.equals("0")) {
-            System.out.println("Action cancelled.");
-            return;
+        	System.out.println("Action cancelled."); 
+        	return;
         }
-        
         Optional<Locker> ol = db.findLocker(id);
         if (ol.isEmpty()) { 
-        	System.out.println("Locker not found."); 
+        	System.out.println("\nLocker not found."); 
         	return; 
         }
 
@@ -287,7 +285,8 @@ public class LockerApp {
         	System.out.println("Action cancelled."); 
         	return;
         }
-    	System.out.println("\n----- Reservations -----");
+        
+        System.out.println("\n----- Reservations -----");
         db.getReservations().stream()
                 .sorted(Comparator.comparing(Reservation::getCreatedAt).reversed())
                 .forEach(r -> System.out.printf("%s | %s\t| %s\t| Locker %s | Code %s | %s\t| RM %.2f%n",
