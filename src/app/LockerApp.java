@@ -50,13 +50,13 @@ public class LockerApp {
             System.out.println("3) Exit");
             String c = ask("Choose: ");
             switch (c) {
-            	case "1" : customerMenu(); break;
-            	case "2" : adminLogin(); break;
-            	case "3" : 
-                    	System.out.println("\nLogging out...");
-                    	System.out.println("Thank you for using the Laundry Locker System!");
-                    	return;
-            	default : System.out.println("Invalid.");
+            case "1" : customerMenu(); break;
+        	case "2" : adminLogin(); break;
+        	case "3" : 
+                	System.out.println("\nLogging out...");
+                	System.out.println("Thank you for using the Laundry Locker System!");
+                	return;
+        	default : System.out.println("Invalid choice.");
             }
         }
     }
@@ -64,29 +64,33 @@ public class LockerApp {
     //Customer menu
     private void customerMenu() {
         while (true) {
-            System.out.println("\n----- Customer Menu -----");
+        	 System.out.println("\n----- Customer Menu -----");
             System.out.println("1) Drop-Off");
             System.out.println("2) Pay & Pick-Up");
             System.out.println("3) Back");    
             String c = ask("Choose: ");
             switch (c) {
-                case "1" : dropOff(); break;
-                case "2" : payAndPickup(); break;
-                case "3" : return;
-                default : System.out.println("Invalid.");
+            case "1" : dropOff(); break;
+            case "2" : payAndPickup(); break;
+            case "3" : return;
+            default : System.out.println("Invalid choice.");
             }
         }
     }
     
     private void dropOff() {
-        System.out.println("\n----- Drop Off -----");
+    	System.out.println("\n----- Drop Off -----");
         String phone;
         do {
-        	phone = ask("Phone number: ");
-        	if (!phone.matches("\\d{8,15}")) {
-        		System.out.println("Invalid phone number (Enter 8-15 digits, e.g. 012345678)\n");
-        	}
-        }while(!phone.matches("\\d{8,15}"));
+            phone = ask("Phone number (0 to cancel): ");
+            if (phone.equals("0")) {
+                System.out.println("Action cancelled.");
+                return; // exit the method
+            }
+            if (!phone.matches("\\d{8,15}")) {
+                System.out.println("Invalid phone number (Enter 8-15 digits, e.g. 012345678)\n");
+            }
+        } while (!phone.matches("\\d{8,15}"));
 
         // show services
         String service = chooseServiceType();
@@ -123,19 +127,39 @@ public class LockerApp {
         return switch (s) {
             case "1" -> ServiceType.WASH_AND_FOLD;
             case "2" -> ServiceType.DRY_CLEANING;
-            default -> { System.out.println("Invalid service type. Drop off cancelled."); 
+            default -> { System.out.println("Invalid service type. Drop off cancelled.");
             yield null; 
             }
         };
     }
 
     private void payAndPickup() {
-        System.out.println("\n----- Pay & Pick-Up -----");
-        String lockerId = ask("Locker ID (e.g., L001): ").toUpperCase();
-        String code = ask("6-digit code: ");
-        Optional<Reservation> or = db.findActiveByLockerAndCode(lockerId, code);
-        if (or.isEmpty()) { System.out.println("Invalid locker/code or not reserved."); return; }
-        Reservation r = or.get();
+    	
+    	Reservation r = null;
+    	Optional<Reservation> or;
+    	String lockerID = null;
+    	
+    	do {
+    	    String lockerId = ask("\nLocker ID (e.g., L001, 0 to cancel): ").toUpperCase();
+    	    if (lockerId.equals("0")) {
+    	        System.out.println("Action cancelled.");
+    	        return; // exit the method
+    	    }
+
+    	    String code = ask("6-digit code (0 to cancel): ");
+    	    if (code.equals("0")) {
+    	        System.out.println("Action cancelled.");
+    	        return; // exit the method
+    	    }
+
+    	    or = db.findActiveByLockerAndCode(lockerId, code);
+
+    	    if (or.isEmpty()) {
+    	        System.out.println("Invalid locker/code or not reserved. Please try again.");
+    	    }
+    	} while (or.isEmpty());
+
+    	r = or.get();
 
         if (r.getDropoffAt() == null) {
             System.out.println("No drop-off recorded yet. Please drop-off first.");
@@ -157,13 +181,13 @@ public class LockerApp {
         	return;
         }
         
-     // Simulated payment
+       // Simulated payment
         r.setPickupAt(pickupTime);
         r.setAmount(total);
         r.setPaymentStatus(PaymentStatus.PAID);
 
-        // Unlock and reset locker
-        Optional<Locker> ol = db.findLocker(lockerId);
+		// Unlock and reset locker
+        Optional<Locker> ol = db.findLocker(lockerID);
         if (ol.isEmpty()) { System.out.println("Locker not found!"); return; }
         Locker locker = ol.get();
         System.out.println("\nLocker unlocked! Please collect your bag.");
@@ -175,7 +199,7 @@ public class LockerApp {
     
     //Admin menu
     private void adminLogin() {
-        System.out.println("\n----- Admin Login -----");
+    	System.out.println("\n----- Admin Login -----");
         String pass = ask("Admin password: ");
         if (!adminGate.allow(pass)) { System.out.println("Access denied."); return; }
         adminMenu();
@@ -183,19 +207,19 @@ public class LockerApp {
 
     private void adminMenu() {
         while (true) {
-            System.out.println("\n----- Admin Menu -----");
-            System.out.println("1) Unlock a Locker");
+        	System.out.println("\n----- Admin Menu -----");
+            System.out.println("1) Unlock a Locker");    
             System.out.println("2) View Locker Details");
             System.out.println("3) List Reservations");
             System.out.println("4) Back");
-           
+            
             String c = ask("Choose: ");
             switch (c) {
-                case "1" : adminUnlock(); break;
-                case "2" : adminViewLockerDetails(); break;
-                case "3" : listReservations(); break;
-                case "4" : return;
-                default : System.out.println("Invalid.");
+            case "1" : adminUnlock(); break;
+            case "2" : adminViewLockerDetails(); break;
+            case "3" : listReservations(); break;
+            case "4" : return;
+            default : System.out.println("Invalid.");
             }
         }
     }
@@ -222,25 +246,29 @@ public class LockerApp {
             Reservation r = last.get();
             Duration dur = DateTimeHandler.safeDuration(r.getDropoffAt(), r.getPickupAt());
             long hrs = dur == null ? 0 : DateTimeHandler.ceilHours(dur);
-            System.out.println("Last Customer Phone: " + r.getPhone());
+            System.out.println("Customer Phone: " + r.getPhone());
             System.out.println("Service Type: " + r.getServiceType());
             System.out.println("Usage Duration: " + (dur == null ? "-" : hrs + " hour(s)"));
-            System.out.printf("Last Payment: %s | Amount: RM %.2f%n", r.getPaymentStatus(), r.getAmount());
-        } else {
+            System.out.printf("Payment: %s | Amount: RM %.2f%n", r.getPaymentStatus(), r.getAmount());
+        } 
+        else {
             System.out.println("No history for this locker yet.");
         }
         System.out.printf("Total Revenue (all lockers): RM %.2f%n", db.totalRevenue());
     }
 
     private void listReservations() {
-        System.out.println("\n----- Reservations -----");
+    	System.out.println("\n----- Reservations -----");
         db.getReservations().stream()
                 .sorted(Comparator.comparing(Reservation::getCreatedAt).reversed())
-                .forEach(r -> System.out.printf("%s | %s \t | %s \t | Locker %s | Code %s | %s \t | RM %.2f%n",
+                .forEach(r -> System.out.printf("%s | %s\t| %s\t| Locker %s | Code %s | %s\t| RM %.2f%n",
                         r.getId(), r.getPhone(), r.getServiceType(), r.getLockerId(), r.getCode(),
                         r.getPaymentStatus(), r.getAmount()));
     }
     
     //Helpers
-    private String ask(String msg) { System.out.print(msg); return sc.nextLine().trim(); }
+    private String ask(String msg) { 
+    	System.out.print(msg); 
+    	return sc.nextLine().trim(); 
+    }
 }
