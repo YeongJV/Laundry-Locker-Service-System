@@ -50,10 +50,14 @@ public class LockerApp {
             System.out.println("3) Exit");
             String c = ask("Choose: ");
             switch (c) {
-                case "1" -> customerMenu();
-                case "2" -> adminLogin();
-                case "3" -> { return; }
-                default -> System.out.println("Invalid.");
+                case "1" : customerMenu(); break;
+                case "2" : adminLogin(); break;
+                case "3" : 
+                        System.out.println("");
+                        System.out.println("Logging out...");
+                        System.out.println("Thank you for using the Laundry Locker System!");
+                        return;
+                default : System.out.println("Invalid.");
             }
         }
     }
