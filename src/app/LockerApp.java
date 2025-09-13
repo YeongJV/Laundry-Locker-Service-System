@@ -50,14 +50,13 @@ public class LockerApp {
             System.out.println("3) Exit");
             String c = ask("Choose: ");
             switch (c) {
-                case "1" : customerMenu(); break;
-                case "2" : adminLogin(); break;
-                case "3" : 
-                        System.out.println("");
-                        System.out.println("Logging out...");
-                        System.out.println("Thank you for using the Laundry Locker System!");
-                        return;
-                default : System.out.println("Invalid.");
+            	case "1" : customerMenu(); break;
+            	case "2" : adminLogin(); break;
+            	case "3" : 
+                    	System.out.println("\nLogging out...");
+                    	System.out.println("Thank you for using the Laundry Locker System!");
+                    	return;
+            	default : System.out.println("Invalid.");
             }
         }
     }
@@ -65,24 +64,22 @@ public class LockerApp {
     //Customer menu
     private void customerMenu() {
         while (true) {
-            System.out.println("\n-- Customer Menu --");
-            System.out.println("1) Reserve Lockers");
-            System.out.println("2) Drop-Off");
-            System.out.println("3) Pay & Pick-Up");
-            System.out.println("4) Home");
+            System.out.println("\n----- Customer Menu -----");
+            System.out.println("1) Drop-Off");
+            System.out.println("2) Pay & Pick-Up");
+            System.out.println("3) Back");    
             String c = ask("Choose: ");
             switch (c) {
-                case "1" : createReservation(); break;
-                case "2" : dropOff(); break;
-                case "3" : payAndPickup(); break;
-                case "4" : return;
-                default  : System.out.println("Invalid.");
+                case "1" : dropOff(); break;
+                case "2" : payAndPickup(); break;
+                case "3" : return;
+                default : System.out.println("Invalid.");
             }
         }
     }
     
-    private void createReservation() {
-        System.out.println("\n-- Reservation --");
+    private void dropOff() {
+        System.out.println("\n----- Drop Off -----");
         String phone;
         do {
         	phone = ask("Phone number: ");
@@ -93,12 +90,7 @@ public class LockerApp {
 
         // show services
         String service = chooseServiceType();
-        if (service == null) {
-            System.out.println("Reservation cancelled"); return;
-        }
-        if (!serviceFees.containsKey(service)){
-            System.out.println("Invalid service type. Reservation cancelled"); return;
-        }
+        if (service == null) return;
         double serviceFee = serviceFees.get(service);
 
         // find free locker
@@ -116,53 +108,29 @@ public class LockerApp {
         locker.setAvailable(false);
         db.saveReservationAndLocker(r, locker);
 
-        System.out.println();
-        System.out.printf("Reservation successful. Locker ID: %s | Code: %s\n", locker.getId(), code);
-        System.out.printf("Locker ID and code sent to phone %s\n via WhatsApp", phone);
-        System.out.println("");
+        System.out.printf("\nLocker unlocked! \nLocker ID: %s | Code: %s\n", locker.getId(), code);
+        System.out.printf("[Locker ID and code already sent to phone %s via WhatsApp]\n", phone);
+        
+        r.setDropoffAt(LocalDateTime.now());
+        db.upsertReservation(r);
     }
 
     private String chooseServiceType() {
         System.out.println("Service Types:");
-        System.out.println("1) Wash & Fold (RM " + serviceFees.get(ServiceType.WASH_AND_FOLD) + ")");
-        System.out.println("2) Dry Cleaning (RM " + serviceFees.get(ServiceType.DRY_CLEANING) + ")");
+        System.out.println("1) Wash & Fold\t (RM " + serviceFees.get(ServiceType.WASH_AND_FOLD) + ")");
+        System.out.println("2) Dry Cleaning\t (RM " + serviceFees.get(ServiceType.DRY_CLEANING) + ")");
         String s = ask("Choose: ");
-
-        if (s.isEmpty()) {
-            System.out.println("No input provided. Cancelled."); return null;
-        }
-
         return switch (s) {
             case "1" -> ServiceType.WASH_AND_FOLD;
             case "2" -> ServiceType.DRY_CLEANING;
-            default -> { System.out.println("Cancelled."); 
+            default -> { System.out.println("Invalid service type. Drop off cancelled."); 
             yield null; 
             }
         };
     }
 
-    private void dropOff() {
-        System.out.println("\n-- Drop-Off --");
-        String lockerId = ask("Locker ID (e.g., L001): ").toUpperCase();
-        String code = ask("6-digit code: ");
-        Optional<Reservation> or = db.findActiveByLockerAndCode(lockerId, code);
-        if (or.isEmpty()) { 
-        	System.out.println("Invalid locker/code or not reserved."); 
-        	return; 
-        }
-
-        Reservation r = or.get();
-        if (r.getDropoffAt() != null) {
-            System.out.println("Drop-off already recorded at " + r.getDropoffAt());
-            return;
-        }
-        r.setDropoffAt(LocalDateTime.now());
-        db.upsertReservation(r);
-        System.out.println(">> Locker unlocked for drop-off. Drop-off time recorded.");
-    }
-
     private void payAndPickup() {
-        System.out.println("\n-- Pay & Pick-Up --");
+        System.out.println("\n----- Pay & Pick-Up -----");
         String lockerId = ask("Locker ID (e.g., L001): ").toUpperCase();
         String code = ask("6-digit code: ");
         Optional<Reservation> or = db.findActiveByLockerAndCode(lockerId, code);
@@ -185,7 +153,7 @@ public class LockerApp {
 
         String pay = ask("Pay now? (y/n): ");
         if (!pay.equalsIgnoreCase("y")) { 
-        	System.out.println("Payment cancelled."); 
+        	System.out.println("\nPayment cancelled."); 
         	return;
         }
         
@@ -198,7 +166,7 @@ public class LockerApp {
         Optional<Locker> ol = db.findLocker(lockerId);
         if (ol.isEmpty()) { System.out.println("Locker not found!"); return; }
         Locker locker = ol.get();
-        System.out.println(">> Locker unlocked. Please collect your bag.");
+        System.out.println("\nLocker unlocked! Please collect your bag.");
         locker.setAvailable(true);
 
         db.completeReservation(r, locker);
@@ -207,7 +175,7 @@ public class LockerApp {
     
     //Admin menu
     private void adminLogin() {
-        System.out.println("\n-- Admin Login --");
+        System.out.println("\n----- Admin Login -----");
         String pass = ask("Admin password: ");
         if (!adminGate.allow(pass)) { System.out.println("Access denied."); return; }
         adminMenu();
@@ -215,19 +183,19 @@ public class LockerApp {
 
     private void adminMenu() {
         while (true) {
-            System.out.println("""
-                \n-- Admin Menu --
-                1) Unlock a Locker (admin use)
-                2) View Locker Details
-                3) List Reservations
-                4) Back""");
+            System.out.println("\n----- Admin Menu -----");
+            System.out.println("1) Unlock a Locker");
+            System.out.println("2) View Locker Details");
+            System.out.println("3) List Reservations");
+            System.out.println("4) Back");
+           
             String c = ask("Choose: ");
             switch (c) {
-                case "1" -> adminUnlock();
-                case "2" -> adminViewLockerDetails();
-                case "3" -> listReservations();
-                case "4" -> { return; }
-                default -> System.out.println("Invalid.");
+                case "1" : adminUnlock(); break;
+                case "2" : adminViewLockerDetails(); break;
+                case "3" : listReservations(); break;
+                case "4" : return;
+                default : System.out.println("Invalid.");
             }
         }
     }
@@ -237,7 +205,7 @@ public class LockerApp {
         Optional<Locker> ol = db.findLocker(id);
         if (ol.isEmpty()) { System.out.println("Locker not found."); return; }
         // Admin unlock does NOT reset to available (SRS)
-        System.out.println(">> Admin override: locker " + id + " unlocked (status unchanged).");
+        System.out.println("Locker " + id + " unlocked!");
     }
 
     private void adminViewLockerDetails() {
@@ -247,7 +215,7 @@ public class LockerApp {
 
         Locker l = ol.get();
         Optional<Reservation> last = db.findLatestForLocker(id);
-        System.out.println("\n-- Locker Details --");
+        System.out.println("\n----- Locker Details -----");
         System.out.println("Locker: " + l.getId());
         System.out.println("Availability: " + (l.isAvailable() ? "AVAILABLE" : "UNAVAILABLE"));
         if (last.isPresent()) {
@@ -265,10 +233,10 @@ public class LockerApp {
     }
 
     private void listReservations() {
-        System.out.println("\n-- Reservations --");
+        System.out.println("\n----- Reservations -----");
         db.getReservations().stream()
                 .sorted(Comparator.comparing(Reservation::getCreatedAt).reversed())
-                .forEach(r -> System.out.printf("%s | %s | %s | Locker %s | Code %s | %s | RM %.2f%n",
+                .forEach(r -> System.out.printf("%s | %s \t | %s \t | Locker %s | Code %s | %s \t | RM %.2f%n",
                         r.getId(), r.getPhone(), r.getServiceType(), r.getLockerId(), r.getCode(),
                         r.getPaymentStatus(), r.getAmount()));
     }
