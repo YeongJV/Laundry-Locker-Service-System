@@ -36,7 +36,10 @@ public class DataStore {
         }
     }
 
-    public void saveAll() throws IOException { saveLockers(); saveReservations(); }
+    public void saveAll() throws IOException { 
+    	saveLockers(); 
+    	saveReservations(); 
+    }
     
     //Lockers
     private void loadLockers() throws IOException {
@@ -57,12 +60,20 @@ public class DataStore {
         }
     }
 
-    public Optional<Locker> findLocker(String id) { return Optional.ofNullable(lockers.get(id)); }
+    public Optional<Locker> findLocker(String id) { 
+    	return Optional.ofNullable(lockers.get(id)); 
+    }
     public Optional<Locker> findFirstAvailableLocker() {
         return lockers.values().stream().filter(Locker::isAvailable).findFirst();
     }
 
-    public void saveLocker(Locker l) { lockers.put(l.getId(), l); try { saveLockers(); } catch (IOException ignored) {} }
+    public void saveLocker(Locker l) { 
+    	lockers.put(l.getId(), l); 
+    	try { 
+    		saveLockers(); 
+    	} 
+    	catch (IOException ignored) {} 
+    }
     
     //Reservations
     private void loadReservations() throws IOException {
@@ -112,7 +123,7 @@ public class DataStore {
         return reservations.values().stream()
                 .filter(r -> r.getLockerId().equalsIgnoreCase(lockerId))
                 .filter(r -> r.getCode().equals(code))
-                .filter(r -> r.getPaymentStatus() == PaymentStatus.UNPAID)
+                .filter(r -> r.getPaymentStatus().equals(PaymentStatus.UNPAID))
                 .findFirst();
     }
 
@@ -125,16 +136,20 @@ public class DataStore {
     public Set<String> getActiveCodes() {
         Set<String> s = new HashSet<>();
         for (Reservation r : reservations.values())
-            if (r.getPaymentStatus() == PaymentStatus.UNPAID) s.add(r.getCode());
+            if (r.getPaymentStatus().equals(PaymentStatus.UNPAID)) 
+            	s.add(r.getCode());
         return s;
     }
 
-    public Collection<Reservation> getReservations() { return reservations.values(); }
+    public Collection<Reservation> getReservations() { 
+    	return reservations.values(); 
+    }
 
     public double totalRevenue() {
         double sum = 0;
         for (Reservation r : reservations.values())
-            if (r.getPaymentStatus() == PaymentStatus.PAID) sum += r.getAmount();
+            if (r.getPaymentStatus().equals(PaymentStatus.PAID)) 
+            	sum += r.getAmount();
         return sum;
     }
 
