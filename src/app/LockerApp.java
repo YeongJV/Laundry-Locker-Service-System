@@ -72,11 +72,11 @@ public class LockerApp {
             System.out.println("4) Home");
             String c = ask("Choose: ");
             switch (c) {
-                case "1" -> createReservation();
-                case "2" -> dropOff();
-                case "3" -> payAndPickup();
-                case "4" -> home();
-                default -> System.out.println("Invalid.");
+                case "1" : createReservation(); break;
+                case "2" : dropOff(); break;
+                case "3" : payAndPickup(); break;
+                case "4" : return;
+                default  : System.out.println("Invalid.");
             }
         }
     }
@@ -93,7 +93,12 @@ public class LockerApp {
 
         // show services
         String service = chooseServiceType();
-        if (service == null) return;
+        if (service == null) {
+            System.out.println("Reservation cancelled"); return;
+        }
+        if (!serviceFees.containsKey(service)){
+            System.out.println("Invalid service type. Reservation cancelled"); return;
+        }
         double serviceFee = serviceFees.get(service);
 
         // find free locker
@@ -122,6 +127,11 @@ public class LockerApp {
         System.out.println("1) Wash & Fold (RM " + serviceFees.get(ServiceType.WASH_AND_FOLD) + ")");
         System.out.println("2) Dry Cleaning (RM " + serviceFees.get(ServiceType.DRY_CLEANING) + ")");
         String s = ask("Choose: ");
+
+        if (s.isEmpty()) {
+            System.out.println("No input provided. Cancelled."); return null;
+        }
+
         return switch (s) {
             case "1" -> ServiceType.WASH_AND_FOLD;
             case "2" -> ServiceType.DRY_CLEANING;

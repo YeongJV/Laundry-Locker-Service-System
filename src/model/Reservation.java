@@ -42,4 +42,5 @@ public class Reservation {
     public void setPickupAt(LocalDateTime t) { this.pickupAt = t; }
     public void setPaymentStatus(String s)   { this.paymentStatus = s; }
     public void setAmount(double a)          { this.amount = a; }
+    public void setCreatedAt(LocalDateTime createdAt) {this.createdAt = createdAt; }
 }

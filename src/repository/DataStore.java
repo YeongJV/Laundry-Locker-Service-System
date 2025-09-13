@@ -84,9 +84,8 @@ public class DataStore {
     }
 
     private static Reservation setCreatedAt(Reservation r, LocalDateTime ts) {
-        // hacky: reflect createdAt via another instance field setter if needed; here we rely on CSV consistency
-        // (createdAt was set in constructor already, we keep the loaded value by reconstructing via CSV order)
-        return r; // createdAt is acceptable as loaded order; for brevity we won't override
+            if (ts != null) {r.setCreatedAt(ts); }
+            return r;
     }
 
     private void saveReservations() throws IOException {
