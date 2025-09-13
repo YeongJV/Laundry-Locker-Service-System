@@ -131,7 +131,7 @@ public class LockerApp {
             case "1" : { return ServiceType.WASH_AND_FOLD; }
             case "2" : { return ServiceType.DRY_CLEANING; }
             case "0" : { System.out.println("Action cancelled."); return null; }
-            default : System.out.println("Invalid choice. Please try again!");
+            default : System.out.println("\nInvalid choice. Please try again!");
             }
         }
     }
@@ -300,3 +300,4 @@ public class LockerApp {
     	return sc.nextLine().trim(); 
     }
 }
+
