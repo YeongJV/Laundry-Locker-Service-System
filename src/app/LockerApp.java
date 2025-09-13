@@ -64,7 +64,7 @@ public class LockerApp {
     //Customer menu
     private void customerMenu() {
         while (true) {
-        	 System.out.println("\n----- Customer Menu -----");
+        	System.out.println("\n----- Customer Menu -----");
             System.out.println("1) Drop-Off");
             System.out.println("2) Pay & Pick-Up");
             System.out.println("3) Back");    
@@ -272,3 +272,4 @@ public class LockerApp {
     	return sc.nextLine().trim(); 
     }
 }
+
