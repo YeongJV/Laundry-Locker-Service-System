@@ -87,10 +87,10 @@ public class LockerApp {
                 System.out.println("\nAction cancelled.");
                 return; // exit the method
             }
-            if (!phone.matches("\\d{8,15}")) {
-                System.out.println("\nInvalid phone number (Enter 8-15 digits, e.g., 012345678)\n");
+            if (!phone.matches("\\d{8,11}")) {
+                System.out.println("\nInvalid phone number (Enter 8-11 digits, e.g., 012345678)\n");
             }
-        } while (!phone.matches("\\d{8,15}"));
+        } while (!phone.matches("\\d{8,11}"));
 
         // show services
         String service = chooseServiceType();
@@ -300,5 +300,6 @@ public class LockerApp {
     	return sc.nextLine().trim(); 
     }
 }
+
 
 
