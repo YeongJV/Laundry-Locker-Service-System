@@ -83,8 +83,6 @@ public class DataStore {
         }
     }
 
-   
-
     private void saveReservations() throws IOException {
         try (BufferedWriter bw = Files.newBufferedWriter(reservationsFile)) {
             for (Reservation r : reservations.values()) {
