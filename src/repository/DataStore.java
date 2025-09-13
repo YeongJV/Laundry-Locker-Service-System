@@ -74,7 +74,7 @@ public class DataStore {
             Reservation r = Reservation.newPending(
                     a[0], a[1], a[2], a[3], a[4], Double.parseDouble(a[5])
             );
-            if (!a[6].isBlank()) r = setCreatedAt(r, LocalDateTime.parse(a[6]));
+            if (!a[6].isBlank()) r.setCreatedAt(LocalDateTime.parse(a[6]));
             if (!a[7].isBlank()) r.setDropoffAt(LocalDateTime.parse(a[7]));
             if (!a[8].isBlank()) r.setPickupAt(LocalDateTime.parse(a[8]));
             r.setPaymentStatus(a[9].isBlank()? PaymentStatus.UNPAID : a[9]);
@@ -83,10 +83,7 @@ public class DataStore {
         }
     }
 
-    private static Reservation setCreatedAt(Reservation r, LocalDateTime ts) {
-            if (ts != null) {r.setCreatedAt(ts); }
-            return r;
-    }
+   
 
     private void saveReservations() throws IOException {
         try (BufferedWriter bw = Files.newBufferedWriter(reservationsFile)) {
