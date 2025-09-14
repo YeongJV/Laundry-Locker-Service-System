@@ -219,14 +219,18 @@ public class LockerApp {
             System.out.println("1) Unlock a Locker");
             System.out.println("2) View Locker Details");
             System.out.println("3) List Reservations");
-            System.out.println("4) Back");
+            System.out.println("4) Remark Maintenance");
+            System.out.println("5) View All Locker Status");
+            System.out.println("6) Back");
            
             String c = ask("Choose: ");
             switch (c) {
             case "1" : adminUnlock(); break;
             case "2" : adminViewLockerDetails(); break;
             case "3" : listReservations(); break;
-            case "4" : return;
+            case "4" : adminMarkMaintenance();; break;
+            case "5" : adminViewAllLockerStatus(); break;
+            case "6" : return;
             default : System.out.println("\nInvalid input. Please try again!");
             }
         }
@@ -293,8 +297,54 @@ public class LockerApp {
                         r.getId(), r.getPhone(), r.getServiceType(), r.getLockerId(), r.getCode(),
                         r.getPaymentStatus(), r.getAmount()));
     }
+
+    private void adminMarkMaintenance() {
+        System.out.println("");
+        String id = ask("Enter locker ID to mark as under maintenance (0 to cancel): ");
+        id = id.toUpperCase();
+        
+        if (id.equals("0")) {
+            System.out.println("Action cancelled.");
+            return;
+        }
+        
+        Optional<Locker> ol = db.findLocker(id);
+        if (!ol.isPresent()) {
+            System.out.println("Locker not found.");
+            return;
+        }
+        
+        Locker l = ol.get();
+        l.setUnderMaintenance(true);
+        db.saveLocker(l);   
+        
+        System.out.println("Locker " + id + " is now set to UNDER MAINTENANCE.");
+    }
+
+    private void adminViewAllLockerStatus() {
+
+        System.out.println("\n--- Locker Status ---");
+        Map<String, Locker> allLockers = db.getLockers();
+        for (Map.Entry<String, Locker> entry : allLockers.entrySet()) {
+            String id = entry.getKey();
+            Locker locker = entry.getValue();
     
-    //Helpers
+            String status = "";
+            if (locker.isUnderMaintenance()) {
+                status = "UNDER MAINTENANCE";
+            } else {
+                if (locker.isAvailable()) {
+                    status = "AVAILABLE";
+                } else {
+                    status = "OCCUPIED";
+                }
+            }
+        
+            System.out.println("Locker " + id + " : " + status);
+        }
+    }
+    
+    
     private String ask(String msg) { 
     	System.out.print(msg); 
     	return sc.nextLine().trim(); 

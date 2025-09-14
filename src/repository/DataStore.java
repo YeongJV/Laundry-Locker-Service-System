@@ -63,8 +63,15 @@ public class DataStore {
     public Optional<Locker> findLocker(String id) { 
     	return Optional.ofNullable(lockers.get(id)); 
     }
+
     public Optional<Locker> findFirstAvailableLocker() {
-        return lockers.values().stream().filter(Locker::isAvailable).findFirst();
+        for (Locker l : lockers.values()) {
+            if (l.isAvailable() && !l.isUnderMaintenance()) {
+                return Optional.of(l);
+            }
+        }
+        
+        return Optional.empty();
     }
 
     public void saveLocker(Locker l) { 
@@ -156,5 +163,10 @@ public class DataStore {
     public void completeReservation(Reservation r, Locker l) {
         upsertReservation(r);
         saveLocker(l);
+    }
+
+    public Map<String, Locker> getLockers() {
+        Map<String, Locker> allLockers = this.lockers;
+        return allLockers;
     }
 }
