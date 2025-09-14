@@ -219,20 +219,18 @@ public class LockerApp {
             System.out.println("1) Unlock a Locker");
             System.out.println("2) View Locker Details");
             System.out.println("3) List Reservations");
-            System.out.println("4) Remark Maintenance");
-            System.out.println("5) Remark Available");
-            System.out.println("6) View All Locker Status");
-            System.out.println("7) Back");
+            System.out.println("4) Remark Locker Status");
+            System.out.println("5) View All Locker Status");
+            System.out.println("6) Back");
            
             String c = ask("Choose: ");
             switch (c) {
             case "1" : adminUnlock(); break;
             case "2" : adminViewLockerDetails(); break;
             case "3" : listReservations(); break;
-            case "4" : adminMarkMaintenance(); break;
-            case "5" : adminMarkAvailable(); break;
-            case "6" : adminViewAllLockerStatus(); break;
-            case "7" : return;
+            case "4" : adminChangeStatus(); break;
+            case "5" : adminViewAllLockerStatus(); break;
+            case "6" : return;
             default : System.out.println("\nInvalid input. Please try again!");
             }
         }
