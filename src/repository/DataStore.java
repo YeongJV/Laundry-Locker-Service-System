@@ -12,7 +12,7 @@ public class DataStore {
     private final File reservationsFile;
 
     private final Map<String, Locker> lockers = new TreeMap<>(Comparator.comparingInt(
-    	    id -> Integer.parseInt(id.substring(1))  
+    	id -> Integer.parseInt(id.substring(1))  
     ));
     private final Map<String, Reservation> reservations = new HashMap<>();
     private double totalRevenue = 0.0;
@@ -36,16 +36,7 @@ public class DataStore {
         
         new File(folder).mkdirs(); 
         try {
-            loadLockers();
-            //Initialize sample lockers
-            if (lockers.isEmpty()) {
-                for (int i = 1; i <= 20; i++) {
-                    String id = "L" + String.format("%03d", i);
-                    lockers.put(id, new Locker(id, true));
-                }
-                saveLockers();
-            }
-            loadReservations();
+            loadAll();
         } catch (IOException e) {
             System.err.println("Error loading data: " + e.getMessage());
         }
@@ -104,7 +95,6 @@ public class DataStore {
                 out.println("UnderMaintenance: " + l.isUnderMaintenance());
                 out.println();
             }
-            out.close();
     	}
     }
     
@@ -192,16 +182,21 @@ public class DataStore {
         }
     }
 
-    public Map<String, Locker> getLockersMap() {
-        return lockers;
-    }
-
     public Collection<Reservation> getReservations() {
         return reservations.values();
     }
     
     public void loadAll() throws IOException {
         loadLockers();
+        //Initialize sample lockers
+        if (lockers.isEmpty()) {
+            for (int i = 1; i <= 20; i++) {
+                String id = "L" + String.format("%03d", i);
+                lockers.put(id, new Locker(id, true));
+            }
+            saveLockers();
+        }
+        
         loadReservations();
     }
     
@@ -262,9 +257,5 @@ public class DataStore {
 
     public Map<String, Locker> getLockers() {
         return lockers;
-    }
-
-    public double totalRevenue() {
-        return totalRevenue;
     }
 }

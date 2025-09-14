@@ -14,10 +14,6 @@ public class LockerApp {
 	private final Scanner sc = new Scanner(System.in);
     private final DataStore db = new DataStore("data");
     private final AdminGate adminGate = new AdminGate("admin123"); 
-    private final Map<String, Double> serviceFees = Map.of(
-            ServiceType.WASH_AND_FOLD, 10.0,
-            ServiceType.DRY_CLEANING, 18.0
-    );
     private static final double LOCKER_FEE_PER_HOUR = 2.0; // RM 2 per hour
 
     public void run() {
@@ -84,9 +80,10 @@ public class LockerApp {
         } while (!phone.matches("\\d{8,11}"));
 
         // show services
-        String service = chooseServiceType();
+        Service service = chooseService();
         if (service == null) return;
-        double serviceFee = serviceFees.get(service);
+        double serviceFee = service.getFee();
+        String serviceType = service.getType();
 
         // find free locker
         Optional<Locker> free = db.findFirstAvailableLocker();
@@ -99,7 +96,7 @@ public class LockerApp {
         // allocate and mark unavailable
         String code = CodeGenerator.unique6Digits(db.getActiveCodes());
         String resId = CodeGenerator.reservationId();
-        Reservation r = Reservation.newPending(resId, phone, locker.getId(), code, service, serviceFee);
+        Reservation r = Reservation.newPending(resId, phone, locker.getId(), code, serviceType, serviceFee);
         r.setAmount(serviceFee);
         locker.setAvailable(false);
         db.saveReservationAndLocker(r, locker);
@@ -111,18 +108,21 @@ public class LockerApp {
         db.upsertReservation(r);
     }
 
-    private String chooseServiceType() {
+    private Service chooseService() {
     	while (true) {
-            System.out.println("\nService Types:");
-            System.out.println("1) Wash & Fold\t (RM " + serviceFees.get(ServiceType.WASH_AND_FOLD) + ")");
-            System.out.println("2) Dry Cleaning\t (RM " + serviceFees.get(ServiceType.DRY_CLEANING) + ")");
+    		System.out.println("\nService Types:");
+            System.out.println("1) Wash & Fold\t (RM 10.0)");
+            System.out.println("2) Dry Cleaning\t (RM 18.0)");
             System.out.println("0) Cancel");
             String s = ask("Choose: ");
             switch (s) {
-            case "1" : { return ServiceType.WASH_AND_FOLD; }
-            case "2" : { return ServiceType.DRY_CLEANING; }
-            case "0" : { System.out.println("\nAction cancelled."); return null; }
-            default : System.out.println("\nInvalid choice. Please try again!");
+            case "1": return new WashAndFoldService();
+            case "2": return new DryCleaningService();
+            case "0":
+                System.out.println("\nAction cancelled."); 
+                return null;
+            default:
+                System.out.println("\nInvalid choice. Please try again!");
             }
         }
     }
@@ -214,7 +214,7 @@ public class LockerApp {
     private void adminLogin() {
         System.out.println("\n----- Admin Login -----");
         String pass = ask("Admin password: ");
-        if (!adminGate.allow(pass)) {
+        if (!adminGate.authenticate(pass)) {
         	System.out.println("\nAccess denied!"); 
         	return;
         }
@@ -411,7 +411,7 @@ public class LockerApp {
     private void adminViewAllLockerStatus() {
 
         System.out.println("\n----- Locker Status -----");
-        db.getLockersMap().values().stream()
+        db.getLockers().values().stream()
         	.sorted(Comparator.comparingInt(l -> Integer.parseInt(l.getId().substring(1))))
         	.forEach(locker -> {
         		String status = "";
