@@ -228,7 +228,7 @@ public class LockerApp {
             case "1" : adminUnlock(); break;
             case "2" : adminViewLockerDetails(); break;
             case "3" : listReservations(); break;
-            case "4" : adminMarkMaintenance();; break;
+            case "4" : adminMarkMaintenance(); break;
             case "5" : adminViewAllLockerStatus(); break;
             case "6" : return;
             default : System.out.println("\nInvalid input. Please try again!");
@@ -299,18 +299,17 @@ public class LockerApp {
     }
 
     private void adminMarkMaintenance() {
-        System.out.println("");
-        String id = ask("Enter locker ID to mark as under maintenance (0 to cancel): ");
+        String id = ask("\nEnter locker ID to mark as under maintenance (0 to cancel): ");
         id = id.toUpperCase();
         
         if (id.equals("0")) {
-            System.out.println("Action cancelled.");
+            System.out.println("\nAction cancelled.");
             return;
         }
         
         Optional<Locker> ol = db.findLocker(id);
         if (!ol.isPresent()) {
-            System.out.println("Locker not found.");
+            System.out.println("\nLocker not found.");
             return;
         }
         
@@ -318,18 +317,18 @@ public class LockerApp {
         l.setUnderMaintenance(true);
         db.saveLocker(l);   
         
-        System.out.println("Locker " + id + " is now set to UNDER MAINTENANCE.");
+        System.out.println("\nLocker " + id + " is now set to UNDER MAINTENANCE.");
     }
 
     private void adminViewAllLockerStatus() {
 
-        System.out.println("\n--- Locker Status ---");
+        System.out.println("\n----- Locker Status -----");
         Map<String, Locker> allLockers = db.getLockers();
         for (Map.Entry<String, Locker> entry : allLockers.entrySet()) {
             String id = entry.getKey();
             Locker locker = entry.getValue();
     
-            String status = "";
+            String status;
             if (locker.isUnderMaintenance()) {
                 status = "UNDER MAINTENANCE";
             } else {
@@ -340,7 +339,7 @@ public class LockerApp {
                 }
             }
         
-            System.out.println("Locker " + id + " : " + status);
+            System.out.println("\nLocker " + id + " : " + status);
         }
     }
     
@@ -350,6 +349,7 @@ public class LockerApp {
     	return sc.nextLine().trim(); 
     }
 }
+
 
 
 
