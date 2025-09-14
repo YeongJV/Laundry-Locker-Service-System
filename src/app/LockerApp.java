@@ -378,6 +378,7 @@ public class LockerApp {
         }
         
         Locker l = ol.get();
+        l.setUnderMaintenance(false);
         l.setAvailable(true);
         db.saveLocker(l);   
         
