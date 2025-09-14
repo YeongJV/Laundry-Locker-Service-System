@@ -114,8 +114,8 @@ public class LockerApp {
             System.out.println("0) Cancel");
             String s = ask("Choose: ");
             switch (s) {
-            case "1": return new WashAndFoldService();
-            case "2": return new DryCleaningService();
+            case "1": return new WashAndFoldService(10.0);
+            case "2": return new DryCleaningService(18.0);
             case "0":
                 System.out.println("\nAction cancelled."); 
                 return null;

@@ -1,9 +1,15 @@
 package model;
 
 public class WashAndFoldService implements Service {
-	@Override
+	private double fee;
+
+    public WashAndFoldService(double fee) {
+        this.fee = fee;
+    }
+    
+    @Override
     public double getFee() {
-        return 10.0;
+        return fee;
     }
 
     @Override

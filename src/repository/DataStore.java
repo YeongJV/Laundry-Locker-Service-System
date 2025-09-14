@@ -157,8 +157,22 @@ public class DataStore {
         String code = fields.get("Code");
         String serviceType = fields.get("Service");
         double fee = Double.parseDouble(fields.getOrDefault("Fee", "0"));
+        
+        Service service;
 
-        Reservation r = Reservation.newPending(id, phone, lockerId, code, serviceType, fee);
+        // Decide which concrete service to use
+        switch (serviceType.toUpperCase().replace(" ", "_")) {
+            case "DRY_CLEANING":
+                service = new DryCleaningService(fee);
+                break;
+            case "WASH_AND_FOLD":
+                service = new WashAndFoldService(fee);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown service type: " + serviceType);
+        }
+
+        Reservation r = Reservation.newPending(id, phone, lockerId, code, service);
 
         if (!fields.getOrDefault("CreatedAt", "").isEmpty())
             r.setCreatedAt(LocalDateTime.parse(fields.get("CreatedAt")));

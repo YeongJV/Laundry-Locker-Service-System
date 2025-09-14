@@ -1,13 +1,19 @@
 package model;
 
 public class DryCleaningService implements Service {
-	@Override
-    public double getFee() {
-        return 18.0;
+	private double fee;
+
+    public DryCleaningService(double fee) {
+        this.fee = fee;
     }
 
     @Override
-    public String getType() {
-        return "DRY_CLEANING";
+    public double getFee() { 
+    	return fee; 
+    }
+
+    @Override
+    public String getType() { 
+    	return "DRY_CLEANING"; 
     }
 }
