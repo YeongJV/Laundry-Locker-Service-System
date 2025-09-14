@@ -350,10 +350,6 @@ public class LockerApp {
         }
         
         Locker l = ol.get();
-        if (!l.isUnderMaintenance()) {
-            System.out.println("\nThis locker is already available.");
-            return;
-        }
         l.setUnderMaintenance(false);
         l.setAvailable(true);
         db.saveLocker(l);   
@@ -390,5 +386,6 @@ public class LockerApp {
     	return sc.nextLine().trim(); 
     }
 }
+
 
 
