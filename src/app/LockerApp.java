@@ -300,8 +300,8 @@ public class LockerApp {
 
     private void adminChangeStatus() {
             System.out.println("\n----- Maintenance -----");
-            System.out.println("1) Remark Maintenance");
-            System.out.println("2) Remove Maintenance");
+            System.out.println("1) REMARK Maintenance");
+            System.out.println("2) REMOVE Maintenance");
             System.out.println("3) Back");    
             String c = ask("Choose: ");
             switch (c) {
