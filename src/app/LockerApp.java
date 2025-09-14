@@ -339,7 +339,7 @@ public class LockerApp {
                 }
             }
         
-            System.out.println("\nLocker " + id + " : " + status);
+            System.out.println("Locker " + id + " : " + status);
         }
     }
     
@@ -349,6 +349,7 @@ public class LockerApp {
     	return sc.nextLine().trim(); 
     }
 }
+
 
 
 
