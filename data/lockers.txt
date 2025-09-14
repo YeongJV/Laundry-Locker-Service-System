@@ -1,0 +1,80 @@
+Locker: L001
+Available: true
+UnderMaintenance: true
+
+Locker: L002
+Available: true
+UnderMaintenance: true
+
+Locker: L003
+Available: false
+UnderMaintenance: false
+
+Locker: L004
+Available: true
+UnderMaintenance: false
+
+Locker: L005
+Available: true
+UnderMaintenance: false
+
+Locker: L006
+Available: true
+UnderMaintenance: false
+
+Locker: L007
+Available: true
+UnderMaintenance: false
+
+Locker: L008
+Available: true
+UnderMaintenance: false
+
+Locker: L009
+Available: true
+UnderMaintenance: false
+
+Locker: L010
+Available: true
+UnderMaintenance: false
+
+Locker: L011
+Available: true
+UnderMaintenance: false
+
+Locker: L012
+Available: true
+UnderMaintenance: false
+
+Locker: L013
+Available: true
+UnderMaintenance: false
+
+Locker: L014
+Available: true
+UnderMaintenance: false
+
+Locker: L015
+Available: true
+UnderMaintenance: false
+
+Locker: L016
+Available: true
+UnderMaintenance: false
+
+Locker: L017
+Available: true
+UnderMaintenance: false
+
+Locker: L018
+Available: true
+UnderMaintenance: false
+
+Locker: L019
+Available: true
+UnderMaintenance: false
+
+Locker: L020
+Available: true
+UnderMaintenance: false
+

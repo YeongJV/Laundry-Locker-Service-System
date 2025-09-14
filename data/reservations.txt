@@ -1,0 +1,13 @@
+ID: R-13115112
+Phone: 012345678
+Locker: L003
+Code: 333168
+Service: Wash and Fold
+Fee: 10.0
+CreatedAt: 2025-09-14T21:47:49.726926400
+DropoffAt: 2025-09-14T21:47:49.728112800
+PickupAt: 
+Payment: UNPAID
+Amount: 10.00
+---
+TOTAL_REVENUE: 0.00
