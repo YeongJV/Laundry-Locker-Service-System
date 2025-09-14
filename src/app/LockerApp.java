@@ -334,34 +334,6 @@ public class LockerApp {
         System.out.println("\nLocker " + id + " is now set to UNDER MAINTENANCE.");
     }
 
-    private void adminMarkAvailable() {
-        System.out.print("\nEnter Locker ID to mark as available (0 to cancel): ");
-        String id = sc.nextLine().toUpperCase();
-
-        if (id.equals("0")) {
-            System.out.println("\nAction cancelled.");
-            return;
-        }
-
-        Optional<Locker> ol = db.findLocker(id);
-        if (ol.isEmpty()) {
-            System.out.println("\nLocker not found.");
-            return;
-        }
-
-        Locker l = ol.get();
-        if (!l.isUnderMaintenance()) {
-            System.out.println("This locker is already available.");
-            return;
-        }
-
-        l.setUnderMaintenance(false);
-        l.setAvailable(true);
-        db.saveLocker(l);
-
-        System.out.println("Locker " + id + " is now back to AVAILABLE.");
-    }
-
     private void adminRemoveMaintenance() {
         String id = ask("\nEnter locker ID to return as available (0 to cancel): ");
         id = id.toUpperCase();
@@ -378,11 +350,15 @@ public class LockerApp {
         }
         
         Locker l = ol.get();
+        if (!l.isUnderMaintenance()) {
+            System.out.println("\nThis locker is already available.");
+            return;
+        }
         l.setUnderMaintenance(false);
         l.setAvailable(true);
         db.saveLocker(l);   
         
-        System.out.println("\nLocker " + id + " is now set to AVAILABLE.");
+        System.out.println("\nLocker " + id + " is now back to AVAILABLE.");
     }
     
     private void adminViewAllLockerStatus() {
@@ -414,4 +390,5 @@ public class LockerApp {
     	return sc.nextLine().trim(); 
     }
 }
+
 
