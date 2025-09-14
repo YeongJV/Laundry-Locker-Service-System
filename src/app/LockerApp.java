@@ -339,7 +339,7 @@ public class LockerApp {
         String id = sc.nextLine().toUpperCase();
 
         if (id.equals("0")) {
-            System.out.println("Action cancelled.");
+            System.out.println("\nAction cancelled.");
             return;
         }
 
@@ -413,3 +413,4 @@ public class LockerApp {
     	return sc.nextLine().trim(); 
     }
 }
+
