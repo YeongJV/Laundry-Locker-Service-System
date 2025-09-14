@@ -6,7 +6,6 @@ import security.AdminGate;
 import util.CodeGenerator;
 import util.DateTimeHandler;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -14,26 +13,18 @@ import java.util.*;
 public class LockerApp {
 	private final Scanner sc = new Scanner(System.in);
     private final DataStore db = new DataStore("data");
-    private final AdminGate adminGate = new AdminGate("admin123"); // change if needed
+    private final AdminGate adminGate = new AdminGate("admin123"); 
     private final Map<String, Double> serviceFees = Map.of(
             ServiceType.WASH_AND_FOLD, 10.0,
             ServiceType.DRY_CLEANING, 18.0
     );
-    private static final double LOCKER_FEE_PER_HOUR = 2.0; // RM 2 per started hour
+    private static final double LOCKER_FEE_PER_HOUR = 2.0; // RM 2 per hour
 
     public void run() {
         splash();
-        try {
-            db.loadAll();
-        } 
-        catch (IOException e) {
-            System.out.println("First run: storage will be created. (" + e.getMessage() + ")");
-        }
+        
         home();
-        try { 
-        	db.saveAll(); 
-        } 
-        catch (IOException ignored) {}
+        db.saveAll(); 
         System.out.println("Goodbye!");
     }
 
@@ -85,7 +76,7 @@ public class LockerApp {
         	phone = ask("Phone number (0 to cancel): ");
             if (phone.equals("0")) {
                 System.out.println("\nAction cancelled.");
-                return; // exit the method
+                return; 
             }
             if (!phone.matches("\\d{8,11}")) {
                 System.out.println("\nInvalid phone number (Enter 8-11 digits, e.g., 012345678) \nPlease try again!\n");
@@ -137,32 +128,43 @@ public class LockerApp {
     }
 
     private void payAndPickup() {
-    	Reservation r = null;
-    	Optional<Reservation> or;
-    	
-    	do {
-    		System.out.println("\n----- Pay & Pick-Up -----");
-    	    String lockerId = ask("\nLocker ID (e.g., L001, 0 to cancel): ").toUpperCase().trim();
-    	    if (lockerId.equals("0")) {
-    	        System.out.println("\nAction cancelled.");
-    	        return; // exit the method
-    	    }
+        System.out.println("\n----- Pay & Pick-Up -----");
 
-    	    String code = ask("6-digit code (0 to cancel): ");
-    	    if (code.equals("0")) {
-    	        System.out.println("\nAction cancelled.");
-    	        return; // exit the method
-    	    }
+        String lockerId;
+        while (true) {
+            lockerId = ask("\nLocker ID (L001-L020, 0 to cancel): ").toUpperCase().trim();
+            if (lockerId.equals("0")) {
+                System.out.println("\nAction cancelled.");
+                return;
+            }
+            if (!isValidLockerId(lockerId)) {
+                System.out.println("\nInvalid locker ID. Please enter L001-L020.");
+                continue;
+            }
+            break; 
+        }
 
-    	    or = db.findActiveByLockerAndCode(lockerId, code);
+        String code;
+        while (true) {
+            code = ask("6-digit code (0 to cancel): ").trim();
+            if (code.equals("0")) {
+                System.out.println("\nAction cancelled.");
+                return;
+            }
+            if (!code.matches("\\d{6}")) {
+                System.out.println("\nInvalid code. Must be 6 digits.");
+                continue;
+            }
+            break; 
+        }
 
-    	    if (or.isEmpty()) {
-    	        System.out.println("\nInvalid locker/code or not reserved. Please try again.");
-    	    }
-    	} while (or.isEmpty());
+        Optional<Reservation> or = db.findActiveByLockerAndCode(lockerId, code);
+        if (or.isEmpty()) {
+            System.out.println("\nInvalid locker/code or not reserved. Please try again.");
+            return;
+        }
 
-    	r = or.get();
-
+        Reservation r = or.get();
         if (r.getDropoffAt() == null) {
             System.out.println("\nNo drop-off recorded yet. Please drop-off first.");
             return;
@@ -170,36 +172,42 @@ public class LockerApp {
 
         LocalDateTime pickupTime = LocalDateTime.now();
         Duration d = Duration.between(r.getDropoffAt(), pickupTime);
-        long hours = DateTimeHandler.ceilHours(d);               // per started hour
+        long hours = DateTimeHandler.ceilHours(d);
         double lockerFee = hours * LOCKER_FEE_PER_HOUR;
         double total = r.getServiceFee() + lockerFee;
 
-        System.out.printf("Service: %s (RM %.2f) + Locker fee: %d hour(s) × RM %.2f = RM %.2f\n",
+        System.out.printf("Service: %s (RM %.2f) + Locker fee: %d hour(s) × RM %.2f = RM %.2f%n",
                 r.getServiceType(), r.getServiceFee(), hours, LOCKER_FEE_PER_HOUR, total);
 
-        String pay = ask("Pay now? (y/n): ");
-        if (!pay.equalsIgnoreCase("y")) { 
-        	System.out.println("\nPayment cancelled."); 
-        	return;
+        String pay = ask("Pay now? (y/n): ").trim();
+        if (!pay.equalsIgnoreCase("y")) {
+            System.out.println("\nPayment cancelled.");
+            return;
         }
-        
-        // Simulated payment
+
         r.setPickupAt(pickupTime);
         r.setAmount(total);
         r.setPaymentStatus(PaymentStatus.PAID);
 
-        // Unlock and reset locker
         Optional<Locker> ol = db.findLocker(r.getLockerId());
-        if (ol.isEmpty()) { 
-        	System.out.println("\nLocker not found!"); 
-        	return; 
+        if (ol.isEmpty()) {
+            System.out.println("\nLocker not found!");
+            return;
         }
+
         Locker locker = ol.get();
-        System.out.println("\nLocker unlocked! Please collect your bag.");
         locker.setAvailable(true);
+        System.out.println("\nLocker unlocked! Please collect your bag.");
 
         db.completeReservation(r, locker);
         System.out.println("Transaction complete. Thank you!");
+    }
+    
+    //Validate locker ID (only L001-L020)
+    private boolean isValidLockerId(String id) {
+        if (!id.matches("L\\d{3}")) return false; 
+        int num = Integer.parseInt(id.substring(1)); 
+        return num >= 1 && num <= 20; 
     }
     
     //Admin menu
@@ -237,30 +245,48 @@ public class LockerApp {
     }
 
     private void adminUnlock() {
-        String id = ask("\nLocker ID (e.g., L001, 0 to cancel): ").toUpperCase();
-        if (id.equals("0")) {
-        	System.out.println("\nAction cancelled."); 
-        	return;
+    	String id;
+        while (true) {
+            id = ask("\nLocker ID (L001-L020, 0 to cancel): ").toUpperCase().trim();
+            if (id.equals("0")) {
+                System.out.println("\nAction cancelled.");
+                return;
+            }
+            if (!isValidLockerId(id)) {
+                System.out.println("\nInvalid locker ID. Please enter L001-L020.");
+                continue;
+            }
+            break; 
         }
+
         Optional<Locker> ol = db.findLocker(id);
         if (ol.isEmpty()) { 
-        	System.out.println("\nLocker not found."); 
-        	return; 
+            System.out.println("\nLocker not found."); 
+            return; 
         }
         
         System.out.println("\nLocker " + id + " unlocked!");
     }
 
     private void adminViewLockerDetails() {
-        String id = ask("\nLocker ID (e.g., L001, 0 to cancel): ").toUpperCase();
-        if (id.equals("0")) {
-        	System.out.println("\nAction cancelled."); 
-        	return;
+    	String id;
+        while (true) {
+            id = ask("\nLocker ID (L001-L020, 0 to cancel): ").toUpperCase().trim();
+            if (id.equals("0")) {
+                System.out.println("\nAction cancelled.");
+                return;
+            }
+            if (!isValidLockerId(id)) {
+                System.out.println("\nInvalid locker ID. Please enter L001-L020.");
+                continue;
+            }
+            break;
         }
+
         Optional<Locker> ol = db.findLocker(id);
         if (ol.isEmpty()) { 
-        	System.out.println("\nLocker not found."); 
-        	return; 
+            System.out.println("\nLocker not found."); 
+            return; 
         }
 
         Locker l = ol.get();
@@ -276,16 +302,24 @@ public class LockerApp {
             System.out.println("Service Type: " + r.getServiceType());
             System.out.println("Usage Duration: " + (dur == null ? "-" : hrs + " hour(s)"));
             System.out.printf("Payment: %s | Amount: RM %.2f%n", r.getPaymentStatus(), r.getAmount());
-        } 
-        else {
+        } else {
             System.out.println("\nNo history for this locker yet.");
         }
-        System.out.printf("Total Revenue (all lockers): RM %.2f%n", db.totalRevenue());
+        System.out.printf("Total Revenue (all lockers): RM %.2f%n", db.getTotalRevenue());
     }
 
     private void listReservations() {
-    	String confirm = ask("\nList all reservations? (y/n): ");
-        if (confirm.equalsIgnoreCase("n")) {
+    	String confirm;
+        while (true) {
+            confirm = ask("\nList all reservations? (y/n): ").trim().toLowerCase();
+            if (confirm.equals("y") || confirm.equals("n")) {
+                break; 
+            } else {
+                System.out.println("Invalid input. Please enter 'y' or 'n'.");
+            }
+        }
+    	
+        if (confirm.equals("n")) {
         	System.out.println("\nAction cancelled."); 
         	return;
         }
@@ -293,7 +327,7 @@ public class LockerApp {
         System.out.println("\n----- Reservations -----");
         db.getReservations().stream()
                 .sorted(Comparator.comparing(Reservation::getCreatedAt).reversed())
-                .forEach(r -> System.out.printf("%s | %s\t| %s\t| Locker %s | Code %s | %s\t| RM %.2f%n",
+                .forEach(r -> System.out.printf("%-11s | %-12s | %-14s | Locker %-5s | Code %-7s | %-6s | RM %6.2f%n",
                         r.getId(), r.getPhone(), r.getServiceType(), r.getLockerId(), r.getCode(),
                         r.getPaymentStatus(), r.getAmount()));
     }
@@ -313,71 +347,86 @@ public class LockerApp {
     }
     	
     private void adminMarkMaintenance() {
-        String id = ask("\nEnter locker ID to mark as under maintenance (0 to cancel): ");
-        id = id.toUpperCase();
-        
-        if (id.equals("0")) {
-            System.out.println("\nAction cancelled.");
-            return;
+    	String id;
+        while (true) {
+            id = ask("\nEnter locker ID to mark as under maintenance (L001-L020, 0 to cancel): ").toUpperCase().trim();
+            if (id.equals("0")) {
+                System.out.println("\nAction cancelled.");
+                return;
+            }
+            if (!isValidLockerId(id)) {
+                System.out.println("\nInvalid locker ID. Please enter L001-L020.");
+                continue;
+            }
+            break;
         }
-        
+
         Optional<Locker> ol = db.findLocker(id);
-        if (!ol.isPresent()) {
+        if (ol.isEmpty()) {
             System.out.println("\nLocker not found.");
             return;
         }
-        
+
         Locker l = ol.get();
         l.setUnderMaintenance(true);
-        db.saveLocker(l);   
-        
+        db.saveLocker(l);
+
         System.out.println("\nLocker " + id + " is now set to UNDER MAINTENANCE.");
     }
 
     private void adminRemoveMaintenance() {
-        String id = ask("\nEnter locker ID to return as available (0 to cancel): ");
-        id = id.toUpperCase();
-        
-        if (id.equals("0")) {
-            System.out.println("\nAction cancelled.");
-            return;
+    	String id;
+        while (true) {
+            id = ask("\nEnter locker ID to return as available (L001-L020, 0 to cancel): ").toUpperCase().trim();
+            if (id.equals("0")) {
+                System.out.println("\nAction cancelled.");
+                return;
+            }
+            if (!isValidLockerId(id)) {
+                System.out.println("\nInvalid locker ID. Please enter L001-L020.");
+                continue;
+            }
+            break;
         }
-        
+
         Optional<Locker> ol = db.findLocker(id);
-        if (!ol.isPresent()) {
+        if (ol.isEmpty()) {
             System.out.println("\nLocker not found.");
             return;
         }
-        
+
         Locker l = ol.get();
+        if (!l.isUnderMaintenance()) {
+            System.out.println("\nThis locker is already available.");
+            return;
+        }
+
         l.setUnderMaintenance(false);
         l.setAvailable(true);
-        db.saveLocker(l);   
-        
+        db.saveLocker(l);
+
         System.out.println("\nLocker " + id + " is now back to AVAILABLE.");
     }
     
     private void adminViewAllLockerStatus() {
 
         System.out.println("\n----- Locker Status -----");
-        Map<String, Locker> allLockers = db.getLockers();
-        for (Map.Entry<String, Locker> entry : allLockers.entrySet()) {
-            String id = entry.getKey();
-            Locker locker = entry.getValue();
-    
-            String status = "";
-            if (locker.isUnderMaintenance()) {
-                status = "UNDER MAINTENANCE";
-            } else {
-                if (locker.isAvailable()) {
-                    status = "AVAILABLE";
+        db.getLockersMap().values().stream()
+        	.sorted(Comparator.comparingInt(l -> Integer.parseInt(l.getId().substring(1))))
+        	.forEach(locker -> {
+        		String status = "";
+                if (locker.isUnderMaintenance()) {
+                    status = "UNDER MAINTENANCE";
                 } else {
-                    status = "OCCUPIED";
+                    if (locker.isAvailable()) {
+                        status = "AVAILABLE";
+                    } else {
+                        status = "OCCUPIED";
+                    }
                 }
-            }
-        
-            System.out.println("Locker " + id + " : " + status);
-        }
+            
+                System.out.println("Locker " + locker.getId() + " : " + status);
+        	});           
     }
     
     
@@ -386,6 +435,3 @@ public class LockerApp {
     	return sc.nextLine().trim(); 
     }
 }
-
-
-
