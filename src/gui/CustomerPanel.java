@@ -77,9 +77,12 @@ public class CustomerPanel extends JPanel {
     }
 
     private void onDropOff() {
-    	String phone = phoneField.getText().trim();
-        if (!phone.matches("\\d{8,15}")) {
-            msg("Invalid phone number (Enter 8-15 digits, e.g., 012345678)");
+    	String phone;
+        while (true) {
+            phone = phoneField.getText().trim();
+            if (phone.isEmpty()) { msg("Enter a phone number."); return; }
+            if (phone.matches("\\d{8,11}")) break;
+            msg("Invalid phone number (Enter 8-11 digits, e.g., 012345678)");
             return;
         }
         String type = (String) serviceBox.getSelectedItem();
@@ -95,6 +98,7 @@ public class CustomerPanel extends JPanel {
         locker.setAvailable(false);
         
         r.setDropoffAt(LocalDateTime.now());
+        r.setAmount(serviceFee);
         
         db.saveReservationAndLocker(r, locker);
         db.upsertReservation(r);
@@ -107,7 +111,10 @@ public class CustomerPanel extends JPanel {
         String code = codeField2.getText().trim();
 
         Optional<Reservation> or = db.findActiveByLockerAndCode(lockerId, code);
-        if (or.isEmpty()) { msg("Invalid locker/code or not reserved."); return; }
+        if (or.isEmpty()) { 
+        	msg("Invalid locker/code or not reserved."); 
+        	return; 
+        }
         Reservation r = or.get();
         if (r.getDropoffAt() == null) { msg("No drop-off recorded yet."); return; }
 
