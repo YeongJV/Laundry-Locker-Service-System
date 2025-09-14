@@ -220,8 +220,9 @@ public class LockerApp {
             System.out.println("2) View Locker Details");
             System.out.println("3) List Reservations");
             System.out.println("4) Remark Maintenance");
-            System.out.println("5) View All Locker Status");
-            System.out.println("6) Back");
+            System.out.println("5) Remark Available");
+            System.out.println("6) View All Locker Status");
+            System.out.println("7) Back");
            
             String c = ask("Choose: ");
             switch (c) {
@@ -229,8 +230,9 @@ public class LockerApp {
             case "2" : adminViewLockerDetails(); break;
             case "3" : listReservations(); break;
             case "4" : adminMarkMaintenance(); break;
-            case "5" : adminViewAllLockerStatus(); break;
-            case "6" : return;
+            case "5" : adminMarkAvailable(); break;
+            case "6" : adminViewAllLockerStatus(); break;
+            case "7" : return;
             default : System.out.println("\nInvalid input. Please try again!");
             }
         }
@@ -318,6 +320,34 @@ public class LockerApp {
         db.saveLocker(l);   
         
         System.out.println("\nLocker " + id + " is now set to UNDER MAINTENANCE.");
+    }
+
+    private void adminMarkAvailable() {
+        System.out.print("\nEnter Locker ID to mark as available (0 to cancel): ");
+        String id = sc.nextLine().toUpperCase();
+
+        if (id.equals("0")) {
+            System.out.println("Action cancelled.");
+            return;
+        }
+
+        Optional<Locker> ol = db.findLocker(id);
+        if (ol.isEmpty()) {
+            System.out.println("\nLocker not found.");
+            return;
+        }
+
+        Locker l = ol.get();
+        if (!l.isUnderMaintenance()) {
+            System.out.println("This locker is already available.");
+            return;
+        }
+
+        l.setUnderMaintenance(false);
+        l.setAvailable(true);
+        db.saveLocker(l);
+
+        System.out.println("Locker " + id + " is now back to AVAILABLE.");
     }
 
     private void adminViewAllLockerStatus() {
