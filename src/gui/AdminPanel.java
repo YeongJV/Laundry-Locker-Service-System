@@ -29,13 +29,21 @@ public class AdminPanel extends JPanel {
             new Object[]{"ID", "Phone", "Service", "Locker", "Code", "Status", "Amount"}, 0);
     private final JTable table = new JTable(tableModel);
     private final JButton refresh = new JButton("Refresh");
+    private final JButton logout = new JButton("Logout");
 
     public AdminPanel(DataStore db) {
-        this.db = db;
+    	this.db = db;
         setLayout(new BorderLayout(12,12));
+
+        // Login
         add(buildTop(), BorderLayout.NORTH);
-        add(buildCenter(), BorderLayout.CENTER);
-        add(buildBottom(), BorderLayout.SOUTH);
+
+        // Table
+        add(buildBottom(), BorderLayout.CENTER);
+
+        // Unlock & details
+        add(buildCenter(), BorderLayout.SOUTH);
+
         setEnabledState(false);
     }
 
@@ -55,27 +63,47 @@ public class AdminPanel extends JPanel {
 
         // Admin Unlock
         JPanel left = new JPanel(new GridBagLayout());
-        left.setBorder(new TitledBorder("Admin Unlock (status unchanged)"));
+        left.setBorder(new TitledBorder("Admin Unlock"));
         GridBagConstraints c = gbc();
-        c.gridx=0; c.gridy=0; left.add(new JLabel("Locker ID:"), c);
-        c.gridx=1; left.add(lockerIdUnlock, c);
+        c.gridx=0; c.gridy=0; 
+        left.add(new JLabel("Locker ID:"), c);
+        
+        c.gridx=1; 
+        c.weightx = 1.0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        left.add(lockerIdUnlock, c);
         JButton unlockBtn = new JButton("Unlock");
         unlockBtn.addActionListener(e -> onAdminUnlock());
-        c.gridx=1; c.gridy=1; left.add(unlockBtn, c);
+        
+        c.gridx=2;
+        c.weightx = 0; 
+        c.fill = GridBagConstraints.NONE;
+        left.add(unlockBtn, c);
 
         // Locker Details
         JPanel right = new JPanel(new GridBagLayout());
         right.setBorder(new TitledBorder("View Locker Details"));
         c = gbc();
-        c.gridx=0; c.gridy=0; right.add(new JLabel("Locker ID:"), c);
-        c.gridx=1; right.add(lockerIdDetails, c);
+        c.gridx=0; c.gridy=0; 
+        right.add(new JLabel("Locker ID:"), c);
+        c.gridx=1; 
+        c.weightx = 1.0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        right.add(lockerIdDetails, c);
         JButton viewBtn = new JButton("View");
         viewBtn.addActionListener(e -> onViewDetails());
-        c.gridx=2; right.add(viewBtn, c);
+        c.gridx=2; 
+        c.weightx=0; 
+        c.fill=GridBagConstraints.NONE;
+        right.add(viewBtn, c);
+        
         detailsArea.setEditable(false);
         detailsArea.setLineWrap(true);
         detailsArea.setWrapStyleWord(true);
         c.gridx=0; c.gridy=1; c.gridwidth=3;
+        c.weightx = 1.0; 
+        c.weighty = 1.0; 
+        c.fill = GridBagConstraints.BOTH; 
         right.add(new JScrollPane(detailsArea), c);
 
         panel.add(left);
@@ -86,9 +114,21 @@ public class AdminPanel extends JPanel {
     private JPanel buildBottom() {
         JPanel p = new JPanel(new BorderLayout());
         p.setBorder(new TitledBorder("Reservations"));
+        //Refresh button
         refresh.addActionListener(e -> loadReservations());
         p.add(refresh, BorderLayout.NORTH);
+        
+        //Table
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        table.setFillsViewportHeight(true);
         p.add(new JScrollPane(table), BorderLayout.CENTER);
+        
+        //Logout button
+        logout.addActionListener(e -> doLogout());
+        JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomBar.add(logout);
+        p.add(bottomBar, BorderLayout.SOUTH);
+        
         return p;
     }
 
@@ -98,6 +138,7 @@ public class AdminPanel extends JPanel {
             loggedIn = true;
             setEnabledState(true);
             JOptionPane.showMessageDialog(this, "Logged in.");
+            loadReservations();
         } else {
             JOptionPane.showMessageDialog(this, "Access denied.");
         }
@@ -154,6 +195,15 @@ public class AdminPanel extends JPanel {
         if (!loggedIn) { msg("Please login first."); return false; }
         return true;
     }
+    
+    private void doLogout() {
+        loggedIn = false;
+        setEnabledState(false);
+        passField.setText("");
+        tableModel.setRowCount(0);
+        detailsArea.setText("");
+        JOptionPane.showMessageDialog(this, "Logged out.");
+    }
 
     private static GridBagConstraints gbc() {
         GridBagConstraints c = new GridBagConstraints();
@@ -167,6 +217,7 @@ public class AdminPanel extends JPanel {
         detailsArea.setEnabled(enabled);
         table.setEnabled(enabled);
         refresh.setEnabled(enabled);
+        logout.setEnabled(enabled);
     }
     private void msg(String s){ JOptionPane.showMessageDialog(this, s); }
 }
