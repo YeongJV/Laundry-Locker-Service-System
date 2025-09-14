@@ -82,9 +82,7 @@ public class LockerApp {
         // show services
         Service service = chooseService();
         if (service == null) return;
-        double serviceFee = service.getFee();
-        String serviceType = service.getType();
-
+        
         // find free locker
         Optional<Locker> free = db.findFirstAvailableLocker();
         if (free.isEmpty()) {
@@ -96,8 +94,8 @@ public class LockerApp {
         // allocate and mark unavailable
         String code = CodeGenerator.unique6Digits(db.getActiveCodes());
         String resId = CodeGenerator.reservationId();
-        Reservation r = Reservation.newPending(resId, phone, locker.getId(), code, serviceType, serviceFee);
-        r.setAmount(serviceFee);
+        Reservation r = Reservation.newPending(resId, phone, locker.getId(), code, service);
+        r.setAmount(service.getFee());
         locker.setAvailable(false);
         db.saveReservationAndLocker(r, locker);
 
