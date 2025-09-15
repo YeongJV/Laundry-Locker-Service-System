@@ -301,9 +301,9 @@ public class LockerApp {
             System.out.println("Usage Duration: " + (dur == null ? "-" : hrs + " hour(s)"));
             System.out.printf("Payment: %s | Amount: RM %.2f%n", r.getPaymentStatus(), r.getAmount());
         } else {
-            System.out.println("\nNo history for this locker yet.");
+            System.out.println("\nNo active reservation for this locker yet.");
         }
-        System.out.printf("Total Revenue (all lockers): RM %.2f%n", db.getTotalRevenue());
+        System.out.printf("\nTotal Revenue (all lockers): RM %.2f%n", db.getTotalRevenue());
     }
 
     private void listReservations() {

@@ -262,6 +262,7 @@ public class DataStore {
     public Optional<Reservation> findLatestForLocker(String lockerId) {
         return reservations.values().stream()
                 .filter(r -> r.getLockerId().equalsIgnoreCase(lockerId))
+                .filter(r -> !"PAID".equalsIgnoreCase(r.getPaymentStatus()))
                 .max(Comparator.comparing(Reservation::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder())));
     }
 
