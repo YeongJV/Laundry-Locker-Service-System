@@ -1,13 +1,13 @@
 Locker: L001
 Available: true
-UnderMaintenance: true
+UnderMaintenance: false
 
 Locker: L002
 Available: true
-UnderMaintenance: true
+UnderMaintenance: false
 
 Locker: L003
-Available: false
+Available: true
 UnderMaintenance: false
 
 Locker: L004
