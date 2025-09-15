@@ -16,18 +16,6 @@ public class DataStore {
     ));
     private final Map<String, Reservation> reservations = new HashMap<>();
     private double totalRevenue = 0.0;
-    
-    public String getFolderPath() {
-        return folder;
-    }
-    
-    public double getTotalRevenue() { 
-    	return totalRevenue; 
-    } 
-    
-    public void addRevenue(double amount) { 
-    	totalRevenue += amount; 
-    }
 
     public DataStore(String folder) {
     	this.folder = folder;
@@ -40,6 +28,18 @@ public class DataStore {
         } catch (IOException e) {
             System.err.println("Error loading data: " + e.getMessage());
         }
+    }
+    
+    public String getFolderPath() {
+        return folder;
+    }
+    
+    public double getTotalRevenue() { 
+    	return totalRevenue; 
+    } 
+    
+    public void addRevenue(double amount) { 
+    	totalRevenue += amount; 
     }
 
     //Lockers
